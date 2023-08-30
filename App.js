@@ -1,11 +1,27 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Image, TextInput, Button, Text, FlatList, Dimensions } from 'react-native';
+
+const headerImage = require("./assets/images/logo-러브키퍼.png");
+const backArrow = require("./assets/images/ic-back.png");
+const searchIcon = require("./assets/images/ic-search.png");
+const blurOne = require("./assets/images/bg-블러원.png");
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
       <StatusBar style="auto" />
+      <View style={styles.head}>
+        <Image source={backArrow} style={{ width: 24, height: 24, marginRight: 90 }} />
+        <Image source={headerImage} style={{ width: 129.68, height: 40 }} />
+        <Image source={searchIcon} style={{ width: 24, height: 24, marginLeft: 90 }} />
+      </View>
+      <View style={styles.body}>
+        <Image source={blurOne} style={styles.backBlur} />
+        <ChatScreen />
+      </View>
     </View>
   );
 }
@@ -14,7 +30,186 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  head: {
+    flex: 1,
+    marginTop: -45,
+    marginHorizontal: 20,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between', 
+  },
+  body: {
+    flex: 3,
+    alignItems: 'center',
+  },
+  backBlur: {
+    marginTop: SCREEN_HEIGHT * 0.05,
+    width: SCREEN_WIDTH + 30,
+    height: SCREEN_HEIGHT * 0.5,
+  },
+  chatContainer: {
+    flex: 1,
+    padding: 10,
+  },
+  messageContainer: {
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 5,
+  },
+  userMessage: {
+    backgroundColor: '#cce6ff',
+    alignSelf: 'flex-end',
+  },
+  responseMessage: {
+    backgroundColor: '#f0f0f0',
+    alignSelf: 'flex-start',
+  },
+  messageText: {
+    fontSize: 16,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+  },
+  textInput: {
+    flex: 1,
+    marginRight: 10,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
   },
 });
+
+function ChatScreen() {
+  const [chatInput, setChatInput] = useState('');
+  const [messages, setMessages] = useState([]);
+
+  const sendMessage = () => {
+    if (chatInput.trim() === '') return;
+
+    setMessages((prevMessages) => [...prevMessages, { text: chatInput, isUser: true }]);
+    setChatInput('');
+    setTimeout(() => {
+      const fakeResponse = `You said: ${chatInput}`;
+      setMessages((prevMessages) => [...prevMessages, { text: fakeResponse, isUser: false }]);
+    }, 1000);
+  };
+
+  return (
+    <View style={styles.chatContainer}>
+      <FlatList
+        data={messages}
+        renderItem={({ item }) => (
+          <View style={[styles.messageContainer, item.isUser ? styles.userMessage : styles.responseMessage]}>
+            <Text style={styles.messageText}>{item.text}</Text>
+          </View>
+        )}
+        keyExtractor={(item, index) => index.toString()}
+      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Type your message..."
+          value={chatInput}
+          onChangeText={(text) => setChatInput(text)}
+        />
+        <Button title="Send" onPress={sendMessage} />
+      </View>
+    </View>
+  );
+}
+
+
+// import React, { useState } from 'react';
+// import { StatusBar, View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+
+// export default function App() {
+//   const [chatInput, setChatInput] = useState('');
+//   const [messages, setMessages] = useState([]);
+
+//   const sendMessage = () => {
+//     if (chatInput.trim() === '') return;
+
+//     setMessages((prevMessages) => [...prevMessages, { text: chatInput, isUser: true }]);
+//     setChatInput('');
+//     setTimeout(() => {
+
+// 가짜 응답 메시지 .... .
+//       const fakeResponse = `You said: ${chatInput}`;
+//       setMessages((prevMessages) => [...prevMessages, { text: fakeResponse, isUser: false }]);
+//     }, 1000);
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <StatusBar style="auto" />
+//       <View style={styles.chatContainer}>
+//         <FlatList
+//           data={messages}
+//           renderItem={({ item }) => (
+//             <View style={[styles.messageContainer, item.isUser ? styles.userMessage : styles.responseMessage]}>
+//               <Text style={styles.messageText}>{item.text}</Text>
+//             </View>
+//           )}
+//           keyExtractor={(item, index) => index.toString()}
+//         />
+//       </View>
+//       <View style={styles.inputContainer}>
+//         <TextInput
+//           style={styles.textInput}
+//           placeholder="Type your message..."
+//           value={chatInput}
+//           onChangeText={(text) => setChatInput(text)}
+//         />
+//         <Button title="Send" onPress={sendMessage} />
+//       </View>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#fff',
+//   },
+//   chatContainer: {
+//     flex: 1,
+//     padding: 10,
+//   },
+//   messageContainer: {
+//     padding: 10,
+//     borderRadius: 10,
+//     marginBottom: 5,
+//   },
+//   userMessage: {
+//     backgroundColor: '#cce6ff',
+//     alignSelf: 'flex-end',
+//   },
+//   responseMessage: {
+//     backgroundColor: '#f0f0f0',
+//     alignSelf: 'flex-start',
+//   },
+//   messageText: {
+//     fontSize: 16,
+//   },
+//   inputContainer: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     padding: 10,
+//     borderTopWidth: 1,
+//     borderTopColor: '#ccc',
+//   },
+//   textInput: {
+//     flex: 1,
+//     marginRight: 10,
+//     padding: 5,
+//     borderWidth: 1,
+//     borderColor: '#ccc',
+//     borderRadius: 5,
+//   },
+// });
