@@ -102,6 +102,7 @@ function ChatScreen() {
 
   return (
     <View style={styles.chatContainer}>
+      
       <FlatList
         data={messages}
         renderItem={({ item }) => (
