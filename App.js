@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, TextInput, Button, Text, FlatList, Dimensions } from 'react-native';
+import io from 'socket.io-client';
 
 const headerImage = require("./assets/images/logo-러브키퍼.png");
 const backArrow = require("./assets/images/ic-back.png");
@@ -85,24 +86,40 @@ const styles = StyleSheet.create({
   },
 });
 
+
 function ChatScreen() {
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState([]);
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    // Connect to the socket.io server (replace with your server's address)
+    const socketIo = io("http://your_server_address_here");
+    setSocket(socketIo);
+
+    // Set up event listener for 'message' event from server
+    socketIo.on('message', (message) => {
+      setMessages((prevMessages) => [...prevMessages, { text: message.text, isUser: message.isUser }]);
+    });
+
+    // Cleanup function to disconnect from socket when component unmounts
+    return () => {
+      socketIo.disconnect();
+    };
+  }, []);
 
   const sendMessage = () => {
     if (chatInput.trim() === '') return;
 
-    setMessages((prevMessages) => [...prevMessages, { text: chatInput, isUser: true }]);
+    const userMessage = { text: chatInput, isUser: true };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    socket.emit('message', userMessage);
+
     setChatInput('');
-    setTimeout(() => {
-      const fakeResponse = `You said: ${chatInput}`;
-      setMessages((prevMessages) => [...prevMessages, { text: fakeResponse, isUser: false }]);
-    }, 1000);
   };
 
   return (
     <View style={styles.chatContainer}>
-      
       <FlatList
         data={messages}
         renderItem={({ item }) => (
@@ -124,6 +141,7 @@ function ChatScreen() {
     </View>
   );
 }
+
 
 
 // import React, { useState } from 'react';
